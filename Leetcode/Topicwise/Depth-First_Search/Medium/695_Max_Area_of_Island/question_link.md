@@ -1,1 +1,0 @@
-[View Problem on LeetCode](https://leetcode.com/problems/max-area-of-island/)

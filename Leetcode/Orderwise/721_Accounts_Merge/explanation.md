@@ -1,55 +1,47 @@
-## LeetCode: Accounts Merge - Detailed Explanation
+## LeetCode: Accounts Merge - Detailed Solution Explanation
 
 **1. Problem Understanding:**
 
-The problem asks us to merge email accounts that belong to the same person.  Each account is represented as a list of strings, where the first string is the person's name, and the rest are their email addresses. If two accounts share at least one email address, they belong to the same person and should be merged into a single account. The output should be a list of merged accounts, where each account's emails are sorted alphabetically.
+The problem "Accounts Merge" asks us to merge email accounts that belong to the same person.  We are given a list of accounts, where each account is a list of strings. The first string in each account is the person's name, and the remaining strings are their email addresses.  If two accounts share at least one email address, they belong to the same person and should be merged into a single account. The output should be a list of merged accounts, where each account contains the person's name followed by their unique email addresses sorted lexicographically.
 
 
 **2. Approach / Intuition:**
 
-The solution uses a Union-Find (Disjoint Set) algorithm to efficiently group accounts that share email addresses.  This approach is chosen because it allows us to quickly determine if two accounts are connected (belong to the same person) and merge them.
+The core idea is to use a Disjoint-Set Union (DSU) data structure to efficiently identify accounts belonging to the same person.  We iterate through the accounts and their email addresses.  If two email addresses belong to different accounts, we use the DSU's `union` operation to merge those accounts.  After processing all accounts, we iterate through the DSU's components, collecting the email addresses associated with each component. We then combine them with the corresponding person's name and sort the email addresses before returning the result.
 
-The algorithm works as follows:
-
-1. **Initialization:** Create a Union-Find data structure to represent the accounts. Each account initially forms its own disjoint set.
-2. **Union Operation:** Iterate through the accounts and their emails.  If two emails belong to different accounts, perform a union operation to merge their corresponding sets.
-3. **Find Operation:** After merging, use the `find` operation to determine the root of each set (the representative account for the group).
-4. **Merge Emails:** Create a map to store the emails associated with each root account.
-5. **Output:** For each root account, gather all its emails (from the map), sort them, prepend the account's name, and add the resulting merged account to the output list.
+This approach is chosen because DSU provides an efficient way to manage the merging of accounts. Its `find` operation helps identify the representative account for a given email, enabling fast merging of accounts that share an email.
 
 
 **3. Data Structures and Algorithms:**
 
-* **Data Structures:**
-    * `List<List<String>>`: To represent the input and output accounts.
-    * `Map<String, Integer>`: To map email addresses to their corresponding account indices.
-    * `Map<Integer, ArrayList<String>>`: To map root account indices to their merged email lists.
-    * `int[] par`: Parent array for the Union-Find data structure.
-    * `int[] size`: Size array for Union-Find (used for Union by Rank optimization).
-
-* **Algorithms:**
-    * **Union-Find (Disjoint Set):** To efficiently merge and find connected components (accounts).  The code utilizes path compression and union by size (or rank) for optimized performance.
-    * **Hash Table:** To provide fast lookups of emails and account indices.
-    * **Sorting:** To sort the emails within each merged account.
+* **Disjoint-Set Union (DSU):**  Used to efficiently group accounts belonging to the same person.  Implemented using `par` (parent) and `size` arrays.
+* **HashMap (`map`):** Used to store a mapping between email addresses and their corresponding account indices. This allows for quick lookups during the union operation.
+* **HashMap (`val`):** Used to temporarily store the merged emails for each account.
+* **ArrayLists:** Used to represent individual accounts and the final list of merged accounts.
+* **Union-Find Algorithm:** The core algorithm used in the DSU implementation.
+* **Sorting (Collections.sort):** Used to sort the emails within each merged account.
 
 
 **4. Code Walkthrough:**
 
-* **`accountsMerge(List<List<String>> accounts)`:** This is the main function. It initializes the Union-Find data structure (`par`, `size`), creates a map to link emails to accounts, performs union operations, creates a map of root accounts to emails, and finally constructs the result list.
+* **`accountsMerge(List<List<String>> accounts)`:** This is the main function that performs the account merging.
+    * It initializes `par` and `size` arrays for the DSU.
+    * It creates a `HashMap` `map` to store email-to-account mappings.
+    * It iterates through the accounts, adding emails to the `map` and using the `union` function to merge accounts sharing emails.
+    * It creates a `HashMap` `val` to collect emails for each merged account based on their root in the DSU.
+    * It iterates through `val` to create the final list of merged accounts, adding the account's name and sorted emails.
+    * Finally, it returns the list of merged accounts.
 
-* **`find(int a)`:** This function performs path compression in the Union-Find data structure.  It finds the root parent of element `a` and updates the parent pointers along the path for faster future lookups.
+* **`find(int a)`:** This function performs path compression in the DSU.  It recursively finds the root of the set containing element `a`, and updates the parent array during the search to improve subsequent `find` operations' efficiency.
 
-* **`union(int a, int b)`:** This function performs the union operation in the Union-Find data structure, merging the sets containing `a` and `b`.  It uses Union by Size (or Rank) optimization, attaching the smaller set to the root of the larger set to keep the tree relatively balanced.
-
-* **Iteration and Mapping:** The code iterates through the accounts and their emails to establish connections using the `map` and `union` function.
-
-* **Result Construction:** The final loop combines the name and sorted emails to construct the result.
+* **`union(int a, int b)`:** This function merges the sets containing elements `a` and `b` using union by rank (size).  It finds the root of each set and merges them, updating the parent and size arrays accordingly.  If `a` and `b` are already in the same set, it does nothing.
 
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(MlogM + Nα(N)), where N is the number of accounts and M is the total number of emails.  The dominant factors are iterating through emails (O(M)), sorting emails (O(MlogM)), and Union-Find operations which take O(Nα(N)) with path compression and union by rank. α(N) is the inverse Ackermann function which grows incredibly slowly, making this almost linear in practice.
+* **Time Complexity:** O(N*M*α(N)), where N is the number of accounts, M is the maximum number of emails in a single account, and α(N) is the inverse Ackermann function which is very slowly growing, considered practically constant for all realistic inputs.  The dominant factor is the nested loop iterating through accounts and emails, but the DSU operations (find and union) have amortized time complexity close to O(1) due to path compression and union by rank. The sorting of emails contributes O(M log M) for each account, making the total sorting time O(N * M log M). But, in most cases, M log M is smaller compared to N*M.
 
-* **Space Complexity:** O(M + N).  This comes from the `map` storing email-account mappings, and the Union-Find arrays `par` and `size`.  The intermediate lists and maps also contribute, but proportionally to the number of accounts and emails.
+* **Space Complexity:** O(N + M), where N is the number of accounts and M is the total number of emails. The space is used primarily for the `par`, `size`, `map`, and `val` data structures. The size of these data structures is proportional to the number of accounts and emails.
 
-The solution offers an efficient way to merge the accounts with better-than-brute-force time complexity due to the optimizations used in the Union-Find data structure.  The space complexity is also relatively efficient as it is directly proportional to the input size.  The `size` array in the `union` function (Union by Size) is an important optimization which prevents the Union-Find from becoming too tall and improving performance significantly.
+
+In summary, this solution efficiently solves the Accounts Merge problem using a well-chosen combination of data structures and algorithms, providing a solution with near-linear time complexity in practical scenarios.

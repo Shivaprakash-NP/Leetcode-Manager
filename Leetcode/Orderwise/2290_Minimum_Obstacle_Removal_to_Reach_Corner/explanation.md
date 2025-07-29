@@ -1,49 +1,55 @@
-## Minimum Obstacle Removal to Reach Corner - LeetCode Solution Explained
+## Minimum Obstacle Removal to Reach Corner - LeetCode Solution Explanation
 
 **1. Problem Understanding:**
 
-The problem asks us to find the minimum number of obstacles we need to remove to reach the bottom-right corner of a grid from the top-left corner.  Each cell in the grid represents either an empty space (0) or an obstacle (1).  Removing an obstacle counts as one step. We can move up, down, left, or right.
+The problem asks to find the minimum number of obstacles you need to remove to reach the bottom-right corner (target) of a grid from the top-left corner (starting point).  Obstacles are represented by '1's in the grid, and empty spaces are represented by '0's.  Removing an obstacle costs 1 unit.  The goal is to find the minimum cost path to the target.
+
 
 **2. Approach / Intuition:**
 
-The solution uses a variation of Dijkstra's algorithm, specifically a priority queue (implemented using a deque) to efficiently find the shortest path.  Dijkstra's algorithm is well-suited for finding the shortest path in a weighted graph, where the weights represent the cost of traversing an edge. In this case, the weights are the obstacles (0 cost for empty cell, 1 cost for obstacle).
+This solution uses a variation of Dijkstra's algorithm employing a deque (double-ended queue) for efficient priority management.  Dijkstra's algorithm is well-suited for finding the shortest path in a weighted graph, which this problem can be modeled as.  The weights represent the cost (number of obstacles encountered).
 
-A simple BFS wouldn't work optimally because it doesn't prioritize paths with fewer obstacles. We use a deque to maintain a priority.  Cells with fewer accumulated obstacles are added to the front (higher priority), ensuring that we explore paths with fewer obstacles first. This prioritization allows us to find the minimum number of obstacles efficiently.
+The deque is used to maintain a priority queue: elements with lower cost are placed at the front (using `addFirst`), while elements with higher cost are added to the back (using `addLast`). This prioritizes exploring paths with fewer obstacles first, which leads to finding the minimum cost path more quickly than a standard BFS.
 
 **3. Data Structures and Algorithms:**
 
-* **Deque (ArrayDeque):**  Used as a priority queue to store cells to visit.  Cells with fewer accumulated obstacle costs are prioritized.
-* **2D Array (vis):** Stores the minimum cost to reach each cell. Initialized with `Integer.MAX_VALUE` to represent infinity.
-* **2D Array (grid):** Input grid representing the obstacles.
-* **Array (dir):** Stores the four possible directions (up, down, left, right).
-* **Dijkstra's Algorithm (modified):** The core algorithm used to find the shortest path with minimum obstacle removal.
+* **Data Structures:**
+    * `int[][] grid`: The input grid representing the map.
+    * `int[][] vis`: A 2D array to store the minimum cost to reach each cell. Initialized with `Integer.MAX_VALUE` to represent infinity.
+    * `Deque<int[]> q`: A double-ended queue (deque) acting as a priority queue to store cells to be visited. Each element in the queue is an array `[cost, row, column]`.
+    * `int[][] dir`: A 2D array storing the four possible movement directions (up, down, left, right).
+
+* **Algorithms:**
+    * **Dijkstra's Algorithm (modified):**  The core algorithm used to find the shortest path.  The modification using a deque improves efficiency by prioritizing lower-cost paths.
+    * **Breadth-First Search (BFS) elements:** The underlying traversal is similar to BFS, but with the priority queue optimization.
+
 
 **4. Code Walkthrough:**
 
 * **Initialization:**
-    * `INF = Integer.MAX_VALUE`: Sets a large value to represent infinity for the minimum cost.
-    * `n`, `m`: Store the dimensions of the grid.
-    * `vis`: A 2D array to store the minimum cost to reach each cell. Initialized with `INF`.
-    * `dir`: An array defining the four possible movement directions.
-    * `q`: A deque initialized with the starting cell `{0, 0, 0}`, representing {cost, row, column}.
+    * `INF = Integer.MAX_VALUE;`: Sets a large value to represent infinity for the cost.
+    * `n` and `m`: Store the dimensions of the grid.
+    * `vis`: A 2D array is initialized with infinity for all cells, representing the initial minimum cost to reach each cell.
+    * `dir`: An array defining the four cardinal directions for movement.
+    * `q`: A deque is created, adding the starting point `(0, 0)` with a cost of `grid[0][0]` (0 or 1).
 
-* **Main Loop (while !q.isEmpty()):**
-    * `p = q.removeFirst()`: Removes the cell with the minimum cost from the deque.
-    * Iteration through directions:
-        * `ni`, `nj`: Calculate the coordinates of the neighboring cell.
-        * Boundary check: Ensures the neighboring cell is within the grid bounds.
-        * `nc`: Calculates the accumulated cost to reach the neighboring cell.
-        * Cost update: If `nc < vis[ni][nj]`, it means a shorter path to the neighbor is found.
-            * If `nc == dis`, it means the neighbor is reached without removing any obstacle, therefore adding it to the front of the queue to maintain priority order.
-            * Otherwise, `nc > dis`, implying an obstacle was removed, so the neighbor is added to the end of the queue.
-        * `vis[ni][nj] = nc`: Updates the minimum cost to reach the neighboring cell.
+* **Main Loop (`while(!q.isEmpty())`):**
+    * It iterates through the queue until it's empty.
+    * `p = q.removeFirst();`:  Retrieves the cell with the lowest cost from the front of the deque.
+    * Nested loop (`for(int[] d : dir)`): Iterates through the four neighboring cells.
+    * **Boundary and Cost Check:** It checks if the neighbor is within the grid boundaries.  `nc` calculates the cost to reach the neighbor.
+    * **Update Minimum Cost (`if(nc < vis[ni][nj])`):**  If a lower cost path to the neighbor is found, the `vis` array is updated.
+    * **Queue Management:**  If the cost to reach the neighbor is the same as the current cost (`nc == dis`), it means the neighbor is on the same cost level, so it's added to the front of the queue. Otherwise, (if the cost increased due to an obstacle) it's added to the end.
 
-* **Result:** `vis[n-1][m-1]`: Returns the minimum cost to reach the bottom-right corner.
+* **Result:**
+    * `return vis[n-1][m-1];`: Returns the minimum cost to reach the bottom-right corner.
+
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(N*M*log(N*M)). The outer `while` loop iterates at most O(N*M) times.  The `for` loop iterates four times for each cell. Adding and removing from the deque takes O(log(N*M)) time in the worst case due to the priority queue operations.
+* **Time Complexity:** O(N*M log(N*M)).  While the deque offers optimization over a standard min-heap in Dijkstra's, in the worst case (where you might need to visit every cell), it would approach the complexity of Dijkstra's using a min-heap.  The log factor comes from the implicit priority queue operations (though not explicitly using a `PriorityQueue`, the deque operations perform a similar task).
 
-* **Space Complexity:** O(N*M).  The `vis` array and the deque have a space complexity of O(N*M) in the worst case, where N and M are the dimensions of the grid.  The `dir` array is of constant size.
+* **Space Complexity:** O(N*M). This is due to the `vis` array, which stores the minimum cost to reach each cell in the grid.  The deque's space usage is at most O(N*M) in the worst case, but is typically much smaller.
 
-In summary, the solution efficiently finds the minimum number of obstacles to remove using a modified Dijkstra's algorithm with a priority queue implemented using a deque, guaranteeing the optimal solution. The algorithm prioritizes paths with fewer obstacles removed, leading to an efficient exploration of the grid.
+
+In summary, this solution efficiently solves the "Minimum Obstacle Removal to Reach Corner" problem using a deque-optimized Dijkstra's algorithm to find the shortest path with the minimum obstacle removal cost. The use of a deque helps to optimize the order in which nodes are explored, leading to faster convergence in many cases compared to a standard BFS.

@@ -1,68 +1,50 @@
-## LeetCode Problem: Smallest Subarrays With Maximum Bitwise OR
+## LeetCode: Smallest Subarrays With Maximum Bitwise OR - Solution Explained
 
 **1. Problem Understanding:**
 
-The problem asks us to find the length of the smallest subarray, starting from each index `i`,  whose elements' bitwise OR results in the maximum possible bitwise OR for the entire array.  In other words, for each starting index, we need to find the minimum number of elements that, when bitwise-OR'ed together, yield the maximum OR value achievable from the input array.
+The problem asks us to find the length of the smallest subarray, starting from each index `i`,  whose elements have a bitwise OR equal to the maximum possible bitwise OR achievable from any subarray starting at `i`.  In simpler terms, for each position in the input array, we need to find the smallest window to the right (inclusive) that contains all the bits set in the maximum possible OR value starting from that position.
 
 
 **2. Approach / Intuition:**
 
-The solution cleverly uses a bit manipulation approach to efficiently solve this problem.  Instead of iterating through all possible subarrays for each starting index (which would be highly inefficient), it analyzes the bits individually.  The core idea is this:
-
-* **Maximum Bitwise OR:**  The maximum bitwise OR of the entire array is pre-calculated (implicitly).  A bit is set in the maximum OR if it's set in *at least one* number in the array.
-
-* **Rightmost Boundary:** For each starting index `i`, we find the rightmost index `r` that includes all the necessary elements to achieve the maximum OR.  The rightmost index is determined by scanning the bits. If a bit is 1 in the maximum OR, we need to find the rightmost occurrence of that bit within the array (starting from the current index).
-
-* **Iterating Backwards:** The algorithm iterates from the end of the array backwards.  This allows us to efficiently find the rightmost occurrences of each significant bit as we move left.
-
-* **Bitwise Operations:** By using bitwise operations (`&` and `>>`), the code efficiently checks the bits of each number and identifies the rightmost positions of the bits necessary to obtain the maximum bitwise OR.
-
-This approach is chosen for its efficiency. A brute-force approach checking all subarrays would have O(n^2) time complexity. This solution achieves linear time complexity.
-
+The solution employs a clever bit manipulation technique to efficiently find the smallest subarray.  Instead of brute-forcing all possible subarrays, it iterates through the input array from right to left.  For each number, it tracks the rightmost index where each bit (0-31) is set within the already processed part of the array. This is done using the `map` array.  The crucial insight is that once a bit is set in the `map`, any subarray containing that bit needs to extend at least to the index where that bit was last seen. This allows us to efficiently calculate the minimum subarray length by checking the rightmost index of each set bit for every element. The algorithm leverages the fact that the bitwise OR operation is associative and commutative, meaning the order of elements doesn't affect the final OR value.
 
 **3. Data Structures and Algorithms:**
 
 * **Data Structures:**
-    * `int[] nums`: Input array of integers.
-    * `int[] ans`: Output array storing the lengths of the smallest subarrays.
-    * `int[] map`: Array to store the rightmost indices of each bit (0-31).
-
+    * `ans[]`: An integer array to store the lengths of the smallest subarrays.
+    * `map[]`: An integer array (size 32) to store the rightmost index of each bit (0-31). `map[j]` holds the rightmost index where the j-th bit is set.
 * **Algorithms:**
-    * **Bit manipulation:**  Using bitwise AND (`&`), right bit shift (`>>`), and other operations.
-    * **Iteration:**  Iterating through the array from right to left.
+    * **Iteration:** The main algorithm iterates through the input array from right to left.
+    * **Bit Manipulation:**  The code uses bitwise AND (`&`), right shift (`>>`), and OR operations to efficiently manipulate bits.
 
 
 **4. Code Walkthrough:**
 
-* **`int[] ans = new int[n];`**: Initializes an array to store the result (length of smallest subarrays).
+* **Initialization:**
+    * `n`: Stores the length of the input array `nums`.
+    * `ans[]`: Initialized to store the results.
+    * `map[]`: Initialized with -1 indicating that no bit is set yet.
 
-* **`int[] map = new int[32]; Arrays.fill(map, -1);`**: Creates an array `map` of size 32 (representing 32 bits).  Initially, all indices are set to -1, indicating that no bit position has been encountered yet.
+* **Iteration (Reverse):** The outer loop iterates from the last element (`n-1`) to the first element (0). This reverse iteration is crucial because it allows us to efficiently track the rightmost index of each set bit.
 
-* **`for(int i = n-1; i>=0; i--)`**: Iterates through the array from the last element to the first.
+* **Inner Loop (Bit Processing):** The inner loop iterates through the bits (0 to 31) of the current number `nums[i]`.
+    * `(tem & 1)`: Checks if the least significant bit is set.
+    * `map[j] = i;`: If the bit is set, update `map[j]` to the current index `i`.
+    * `tem = tem >> 1;`: Right-shift `tem` to check the next bit.
+    * `r = Math.max(r, map[j]);`:  Finds the rightmost index (`r`) among all bits set.  This ensures the subarray extends to include all the bits.
 
-* **`int tem = nums[i];`**: Copies the current number for processing.
+* **Result Calculation:**
+    * `ans[i] = r - i + 1;`: Calculates the length of the smallest subarray and stores it in `ans[i]`.
 
-* **`int r = i;`**: Initializes `r` (rightmost index) to the current index `i`.
-
-* **`for(int j = 0; j<32; j++)`**: Iterates through each bit (0-31).
-
-* **`if((tem&1) == 1)`**: Checks if the least significant bit is set.
-
-* **`map[j] = i;`**: If the bit is set, update the rightmost index for that bit in `map`.
-
-* **`tem = tem>>1;`**: Right-shifts `tem` by 1 bit, moving to the next bit.
-
-* **`if(map[j] != -1) r = Math.max(r, map[j]);`**: If a rightmost index is found for the bit (`map[j] != -1`), update `r` to be the maximum of `r` and `map[j]`, effectively expanding the right boundary as needed.
-
-* **`ans[i] = r-i+1;`**: Calculates the length of the smallest subarray and stores it in `ans`.
-
-* **`return ans;`**: Returns the result array.
+* **Return Value:** The function returns the `ans` array containing the lengths of the smallest subarrays for each starting index.
 
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(n*k), where n is the length of the input array and k is the number of bits (32 in this case).  While technically O(n), it's linear with a constant factor of 32, making it very efficient. The nested loops iterate a total of 32n times, making it linear in terms of the input size.
+* **Time Complexity:** O(N*K), where N is the length of the input array and K is the number of bits (32 in this case). The nested loops contribute to this complexity.  In practice, K is a constant, so it's effectively linear O(N).
 
-* **Space Complexity:** O(k), where k is the number of bits (32). The space used is dominated by the `map` array.  This is constant space complexity in practice because k is fixed. The `ans` array also uses O(n) space, but it's the output array, so it's generally not considered part of the space complexity analysis.
+* **Space Complexity:** O(K), where K is the number of bits. The `map` array dominates the space complexity.  Again, since K is a constant (32), the space complexity is considered O(1).
 
-In summary, the algorithm is efficient because it cleverly utilizes bit manipulation to avoid explicitly checking all possible subarrays, resulting in a linear time complexity solution.
+
+**In summary:** This solution cleverly uses bit manipulation and a right-to-left iteration to avoid the need for exploring all subarrays, resulting in an efficient algorithm with linear time complexity. The use of a fixed-size `map` keeps the space complexity constant.  The solution demonstrates a good understanding of bitwise operations and their applications in problem-solving.

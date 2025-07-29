@@ -2,20 +2,21 @@
 
 **1. Problem Understanding:**
 
-The problem asks us to find the city (represented by an index) with the fewest number of cities within a given `distanceThreshold`.  The distances between cities are provided as weighted edges in a graph. We need to find the shortest paths between all pairs of cities and then count the number of cities reachable within the threshold distance from each city. The city with the minimum count is the answer.
+The problem asks us to find the city with the fewest number of cities within a given distance threshold.  We're given a number of cities (`n`), connections between them represented as weighted edges (`edges`), and a maximum distance (`distanceThreshold`).  The goal is to identify the city that has the smallest number of other cities reachable within the specified distance threshold.
 
 
 **2. Approach / Intuition:**
 
-The solution employs Floyd-Warshall algorithm to find the shortest paths between all pairs of cities.  Floyd-Warshall is chosen because it efficiently computes the shortest paths for all pairs of nodes in a weighted graph, even with cycles. After computing the shortest paths, the algorithm iterates through each city, counts the number of cities reachable within the `distanceThreshold`, and selects the city with the minimum count.
+The solution uses Floyd-Warshall algorithm to find the shortest paths between all pairs of cities.  Floyd-Warshall is chosen because it efficiently computes shortest paths for all city pairs in a graph with positive or zero edge weights. After computing the shortest paths, we iterate through each city, counting the number of cities reachable within the `distanceThreshold`. The city with the minimum count is the solution.
+
 
 **3. Data Structures and Algorithms:**
 
 * **Data Structures:**
-    * `int[][] map`: A 2D array representing the adjacency matrix of the graph. `map[i][j]` stores the shortest distance between city `i` and city `j`.  `INF` (a large value) represents infinity, indicating no direct path.
+    * `map[][]`: A 2D array (adjacency matrix) to store the shortest distances between all pairs of cities.  `map[i][j]` represents the shortest distance between city `i` and city `j`.  A large value (`INF`) represents unreachable cities.
 * **Algorithms:**
     * **Floyd-Warshall Algorithm:**  Used to find the shortest paths between all pairs of vertices in a weighted graph.
-    * **Iteration and Counting:**  Iterating through cities to count reachable cities within the threshold.
+    * **Iteration:**  Iterating through cities to count neighbors within the threshold.
 
 
 **4. Code Walkthrough:**
@@ -30,7 +31,7 @@ The solution employs Floyd-Warshall algorithm to find the shortest paths between
         map[i][i] = 0;
     }
     ```
-    This section initializes the adjacency matrix `map`.  `INF` is set to a large number representing infinity.  The matrix is filled with `INF` initially, except for the diagonal, which represents the distance from a city to itself (0).
+    This section initializes a square matrix `map` of size `n x n` with a large value (`INF`) representing infinity for all pairs of cities. The diagonal is set to 0 because the distance from a city to itself is 0.
 
 * **Edge Processing:**
     ```java
@@ -42,9 +43,10 @@ The solution employs Floyd-Warshall algorithm to find the shortest paths between
         map[v][u] = w;
     }
     ```
-    This section populates the adjacency matrix with the given edges.  `u` and `v` represent the cities connected by an edge, and `w` represents the weight (distance) of the edge.  The matrix is made symmetric since the distance between two cities is the same regardless of direction.
+    This part populates the `map` with the initial distances given in the `edges` array. Each edge `e` contains the source city (`u`), destination city (`v`), and the weight (`w`).  The matrix is updated for both directions (undirected graph).
 
-* **Floyd-Warshall Implementation:**
+
+* **Floyd-Warshall:**
     ```java
     for(int v = 0; v<n; v++) {
         for(int i = 0; i<n; i++) {
@@ -54,9 +56,10 @@ The solution employs Floyd-Warshall algorithm to find the shortest paths between
         }
     }
     ```
-    This is the core of the Floyd-Warshall algorithm. It iterates through all possible intermediate vertices (`v`) to find the shortest path between all pairs of cities (`i` and `j`). It updates `map[i][j]` with the minimum distance found so far.
+    This is the core of the Floyd-Warshall algorithm. It iterates through all possible intermediate vertices (`v`) to find the shortest path between each pair of cities (`i` and `j`). `Math.min` ensures we keep the shortest path found so far.
 
-* **City Counting and Result Selection:**
+
+* **Finding the City:**
     ```java
     int ans = 0;
     int rec = Integer.MAX_VALUE;
@@ -72,13 +75,14 @@ The solution employs Floyd-Warshall algorithm to find the shortest paths between
     }
     return ans;
     ```
-    This section iterates through each city (`i`) and counts the number of cities (`c`) reachable within the `distanceThreshold`. It keeps track of the city with the minimum count (`rec`) and its index (`ans`).  The final `ans` is returned.
+    This section iterates through each city (`i`). For each city, it counts the number of cities (`c`) reachable within the `distanceThreshold`. The city with the minimum count (`rec`) is stored in `ans`, which is ultimately returned.
 
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(n³), dominated by the Floyd-Warshall algorithm which has a cubic time complexity. The final iteration to count reachable cities is O(n²).
-* **Space Complexity:** O(n²), due to the adjacency matrix `map`.
+* **Time Complexity:** O(n³), dominated by the Floyd-Warshall algorithm, which has cubic time complexity. The final iteration to count neighbors is O(n²).  However, O(n³) is the dominant factor.
+
+* **Space Complexity:** O(n²), due to the `map` matrix which stores shortest path distances between all pairs of cities.  The space used by other variables is negligible compared to the matrix.
 
 
-In summary, this Java code efficiently solves the problem using the Floyd-Warshall algorithm for all-pairs shortest paths and then performs a linear scan to find the city satisfying the given condition. The cubic time complexity is inherent to the all-pairs shortest path problem, and the quadratic space complexity is necessary to represent the graph's adjacency matrix.
+The solution is efficient for moderately sized graphs. For extremely large graphs, more advanced algorithms might be necessary to reduce the cubic time complexity.

@@ -1,64 +1,55 @@
-## LeetCode: Most Stones Removed with Same Row or Column - Detailed Explanation
+## LeetCode: Most Stones Removed with Same Row or Column - Solution Explanation
 
 **1. Problem Understanding:**
 
-The problem asks us to find the maximum number of stones we can remove from a given set of stones on a 2D plane such that after removing stones, no two remaining stones share the same row or column.  Each stone is represented by its coordinates (x, y).
+The problem asks us to find the maximum number of stones we can remove from a grid such that no two remaining stones share the same row or column.  Each stone is represented by its coordinates (row, column).
 
 **2. Approach / Intuition:**
 
-The solution uses Union-Find (Disjoint Set Union) to efficiently determine the number of connected components among the stones.  The core idea is to treat each row and each column as a node in a graph.  A stone at (x, y) creates an edge between row y and column x.  If two stones share a row or a column, they belong to the same connected component.  The maximum number of stones we can remove is equal to the total number of stones minus the number of connected components.  This is because at least one stone must remain in each connected component.
+The solution employs a Union-Find algorithm to efficiently determine the number of connected components among stones.  The core idea is to treat each row and each column as a node in a graph.  If two stones share a row or column, their corresponding row and column nodes are connected.  The number of stones that can be removed is equal to the total number of stones minus the number of connected components.  By using Union-Find, we efficiently determine the connected components, avoiding redundant checks.
 
-This approach is chosen because Union-Find is highly efficient in determining connected components in a graph, especially when dealing with a large number of nodes and edges.  It has a near-linear time complexity for the union and find operations.
+This approach is chosen because Union-Find excels at efficiently managing connectivity in a graph, making it well-suited for this problem's requirements.  A brute-force approach would be computationally expensive for larger inputs.
+
 
 **3. Data Structures and Algorithms:**
 
 * **Data Structures:**
-    * `par`: An integer array representing the parent node in the Union-Find data structure. `par[i] = i` initially indicates that node `i` is its own parent.
-    * `size`: An integer array storing the size of each connected component in the Union-Find data structure.
-    * `HashSet<Integer>`: Used to store the unique connected components found.
+    * `par`: An integer array representing the parent node in the Union-Find data structure.  `par[i]` stores the parent of node `i`.
+    * `size`: An integer array storing the size of each connected component (number of nodes in the subtree rooted at that node).
+    * `Set<Integer>`:  A HashSet to efficiently store and check for unique connected component representatives.
 
 * **Algorithms:**
-    * **Union-Find (Disjoint Set Union):**  Used to efficiently manage the connected components.
-    * **Path Compression:** Used in the `find` function to optimize the search for the root of a connected component.
-    * **Union by Rank (or Size):** Used in the `union` function to balance the tree structure of the connected components, ensuring near-constant time complexity for the find operation.
+    * **Union-Find:**  A disjoint-set data structure used to efficiently track connected components.
+    * **Path Compression (in `find` method):** Optimizes Union-Find by flattening the tree structure during the search for a root node.
+    * **Union by Rank (in `union` method):** Optimizes Union-Find by always attaching the smaller tree to the larger one, improving overall efficiency.
 
 
 **4. Code Walkthrough:**
 
 * **Initialization:**
-    * `r` and `c` determine the maximum row and column indices.
-    * `par` and `size` arrays are initialized for Union-Find with size `r+c+2` (to accommodate all rows and columns).  We add 2 to handle potential off-by-one errors.
-    * Each element in `par` is initially set to itself, indicating that each node is its own component.
-    * Each element in `size` is initially 1, representing the size of a singleton component.
+    * `r` and `c` find the maximum row and column indices among the stones.
+    * `par` and `size` arrays are initialized to represent the Union-Find data structure. Each node initially forms its own connected component with parent set to itself and size 1.  The size of the arrays is `r + c + 2` to account for all rows and columns (0-indexed).  We add 2 to accommodate for potential 0-indexed rows and columns.
 
-
-* **Union Operation:**
-    * The loop iterates through each stone `s`.
-    * `a` represents the row index, and `b` represents the column index plus `r+1`, effectively mapping rows and columns to disjoint ranges within the `par` array.
-    * `union(a, b)` merges the row and column components using Union-Find.
-
+* **Union of Rows and Columns:**
+    * The code iterates through each stone `s`.
+    * It maps each stone's row (`s[1]`) and column (`s[0]`) to unique indices in the `par` array.  The column index is offset by `r + 1` to avoid conflict with row indices.
+    * `union(a, b)` connects the row and column nodes for the stone.
 
 * **Finding Connected Components:**
-    * The `HashSet set` stores the unique root nodes of each connected component.
-    * For each stone, the root nodes of its row and column components (`find(par[a])` and `find(par[b])`) are added to the `set`.
+    * A `HashSet` `set` is used to collect the unique representatives (roots) of connected components.  For each stone, `find(par[a])` and `find(par[b])` determine the root of its row and column components using path compression.
 
+* **Calculating Removable Stones:**
+    * The number of removable stones is the total number of stones minus the number of unique connected components found (size of `set`).
 
-* **Result Calculation:**
-    * The number of removable stones is the total number of stones minus the number of distinct connected components found (the size of the `set`).
-
-
-* **`find(int a)`:**
-    * This function finds the root node of the component containing node `a` using path compression for optimization.
-
-
-* **`union(int a, int b)`:**
-    * This function performs the union of two components, using union by size (or rank) for efficiency.
-
+* **Helper Functions:**
+    * `find(a)`: Implements path compression for efficient root finding in Union-Find.
+    * `union(a, b)`: Implements Union-by-Rank for efficient merging of components in Union-Find.
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(Nα(N)), where N is the number of stones, and α(N) is the inverse Ackermann function, which is practically a constant for all realistic input sizes.  The Union-Find operations (union and find) with path compression and union by size have an amortized time complexity of nearly O(1) per operation.
+* **Time Complexity:** O(Nα(N)), where N is the number of stones, and α(N) is the inverse Ackermann function, which is practically a constant for all realistic inputs.  The Union-Find operations (find and union) with path compression and union by rank have an amortized time complexity of nearly O(1) per operation.
 
-* **Space Complexity:** O(R + C), where R is the maximum row index and C is the maximum column index. This is the space required for the `par` and `size` arrays.  The HashSet's space complexity is also bounded by O(R+C).
+* **Space Complexity:** O(R + C), where R is the maximum row index and C is the maximum column index. This is due to the size of the `par` and `size` arrays, which are proportional to the number of rows and columns.  The `set` has a space complexity of O(number of connected components), which is at most O(R+C).
 
-In summary, this solution efficiently solves the problem using Union-Find, achieving a near-linear time complexity, making it suitable for handling a large number of stones. The space complexity is also reasonably efficient, depending linearly on the maximum row and column indices.
+
+In summary, this solution efficiently solves the "Most Stones Removed with Same Row or Column" problem using the Union-Find algorithm with optimizations, providing a time-efficient solution for a potentially large number of stones.
