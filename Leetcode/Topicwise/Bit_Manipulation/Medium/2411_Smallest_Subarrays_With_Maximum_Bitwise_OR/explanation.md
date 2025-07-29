@@ -1,62 +1,68 @@
-## LeetCode: Smallest Subarrays With Maximum Bitwise OR - Solution Explanation
+## LeetCode Problem: Smallest Subarrays With Maximum Bitwise OR
 
 **1. Problem Understanding:**
 
-The problem asks us to find the length of the smallest subarray, starting at each index `i` in the input array `nums`, such that the bitwise OR of all elements within that subarray is maximal (equal to the bitwise OR of all elements in `nums`).  In simpler terms, for each starting position, we want to find the shortest subarray whose bitwise OR encompasses all the bits set in the entire input array.
+The problem asks us to find the length of the smallest subarray, starting from each index `i`,  whose elements' bitwise OR results in the maximum possible bitwise OR for the entire array.  In other words, for each starting index, we need to find the minimum number of elements that, when bitwise-OR'ed together, yield the maximum OR value achievable from the input array.
 
 
 **2. Approach / Intuition:**
 
-The solution utilizes a clever iterative approach starting from the right end of the array.  It leverages the fact that the bitwise OR operation is associative and commutative.  Instead of directly calculating the bitwise OR of all subarrays, it maintains a `map` to track the rightmost index of each bit (0-31) encountered so far. This allows us to efficiently determine the minimum window size.
+The solution cleverly uses a bit manipulation approach to efficiently solve this problem.  Instead of iterating through all possible subarrays for each starting index (which would be highly inefficient), it analyzes the bits individually.  The core idea is this:
 
-The algorithm iterates through the array from right to left. For each element, it checks its bits. If a bit is set, it updates the rightmost index of that bit in the `map`.  The minimum subarray length ending at the current index is then determined by finding the maximum rightmost index among all the bits present in the current element and calculating the difference from the current index. This efficiently avoids unnecessary OR calculations for every subarray.
+* **Maximum Bitwise OR:**  The maximum bitwise OR of the entire array is pre-calculated (implicitly).  A bit is set in the maximum OR if it's set in *at least one* number in the array.
+
+* **Rightmost Boundary:** For each starting index `i`, we find the rightmost index `r` that includes all the necessary elements to achieve the maximum OR.  The rightmost index is determined by scanning the bits. If a bit is 1 in the maximum OR, we need to find the rightmost occurrence of that bit within the array (starting from the current index).
+
+* **Iterating Backwards:** The algorithm iterates from the end of the array backwards.  This allows us to efficiently find the rightmost occurrences of each significant bit as we move left.
+
+* **Bitwise Operations:** By using bitwise operations (`&` and `>>`), the code efficiently checks the bits of each number and identifies the rightmost positions of the bits necessary to obtain the maximum bitwise OR.
+
+This approach is chosen for its efficiency. A brute-force approach checking all subarrays would have O(n^2) time complexity. This solution achieves linear time complexity.
 
 
 **3. Data Structures and Algorithms:**
 
 * **Data Structures:**
-    * `int[] nums`: The input array of integers.
-    * `int[] ans`: The output array storing the lengths of the smallest subarrays.
-    * `int[] map`: An array of size 32 to store the rightmost index of each bit (0-31) encountered.  This acts as a lookup table for efficient bit tracking.
+    * `int[] nums`: Input array of integers.
+    * `int[] ans`: Output array storing the lengths of the smallest subarrays.
+    * `int[] map`: Array to store the rightmost indices of each bit (0-31).
 
 * **Algorithms:**
-    * **Iterative approach:** The solution uses an iterative approach to traverse the array from right to left.
-    * **Bit manipulation:** The core logic involves bitwise operations (`&`, `>>`) to efficiently check and process individual bits within each integer.
-    * **Greedy approach (Implicit):** By expanding the window only when necessary (based on bit presence), the solution implicitly uses a greedy strategy to find the smallest subarray.
+    * **Bit manipulation:**  Using bitwise AND (`&`), right bit shift (`>>`), and other operations.
+    * **Iteration:**  Iterating through the array from right to left.
+
 
 **4. Code Walkthrough:**
 
-```java
-class Solution {
-    public int[] smallestSubarrays(int[] nums) {
-        int n = nums.length;
-        int[] ans = new int[n]; // Output array to store subarray lengths
-        int[] map = new int[32]; // Map to track rightmost index of each bit
-        Arrays.fill(map, -1); // Initialize map with -1 (no bit seen yet)
+* **`int[] ans = new int[n];`**: Initializes an array to store the result (length of smallest subarrays).
 
-        for(int i = n-1; i>=0; i--) { // Iterate from right to left
-            int tem = nums[i]; // Current element
-            int r = i; // Rightmost index of the smallest subarray
+* **`int[] map = new int[32]; Arrays.fill(map, -1);`**: Creates an array `map` of size 32 (representing 32 bits).  Initially, all indices are set to -1, indicating that no bit position has been encountered yet.
 
-            for(int j = 0; j<32; j++) { // Iterate through bits (0-31)
-                if((tem&1) == 1) { // If j-th bit is set
-                    map[j] = i; // Update rightmost index of j-th bit
-                }
-                tem = tem>>1; // Right-shift to check next bit
-                if(map[j] != -1) r = Math.max(r, map[j]); // Update rightmost index 'r'
-            }
-            ans[i] = r-i+1; // Length of smallest subarray starting at 'i'
-        }
+* **`for(int i = n-1; i>=0; i--)`**: Iterates through the array from the last element to the first.
 
-        return ans;
-    }
-}
-```
+* **`int tem = nums[i];`**: Copies the current number for processing.
+
+* **`int r = i;`**: Initializes `r` (rightmost index) to the current index `i`.
+
+* **`for(int j = 0; j<32; j++)`**: Iterates through each bit (0-31).
+
+* **`if((tem&1) == 1)`**: Checks if the least significant bit is set.
+
+* **`map[j] = i;`**: If the bit is set, update the rightmost index for that bit in `map`.
+
+* **`tem = tem>>1;`**: Right-shifts `tem` by 1 bit, moving to the next bit.
+
+* **`if(map[j] != -1) r = Math.max(r, map[j]);`**: If a rightmost index is found for the bit (`map[j] != -1`), update `r` to be the maximum of `r` and `map[j]`, effectively expanding the right boundary as needed.
+
+* **`ans[i] = r-i+1;`**: Calculates the length of the smallest subarray and stores it in `ans`.
+
+* **`return ans;`**: Returns the result array.
+
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(N*logM), where N is the length of `nums` and M is the maximum value in `nums`.  The outer loop iterates N times. The inner loop iterates 32 times (number of bits) in the worst case.  In essence, it's linear with respect to the number of bits that need to be processed across all elements. Since the number of bits is roughly logarithmic to the maximum value in the array, the overall time complexity can be approximated as O(N*logM).
+* **Time Complexity:** O(n*k), where n is the length of the input array and k is the number of bits (32 in this case).  While technically O(n), it's linear with a constant factor of 32, making it very efficient. The nested loops iterate a total of 32n times, making it linear in terms of the input size.
 
-* **Space Complexity:** O(1).  The space used by `map` is constant (32 integers), regardless of the input array size.  The output array `ans` also has the same size as the input array, which is considered part of the problem's output and not additional space used by the algorithm itself.  Therefore, the space complexity is considered constant or O(1).  Ignoring the space for output, only `map` requires constant extra space.
+* **Space Complexity:** O(k), where k is the number of bits (32). The space used is dominated by the `map` array.  This is constant space complexity in practice because k is fixed. The `ans` array also uses O(n) space, but it's the output array, so it's generally not considered part of the space complexity analysis.
 
-This solution is efficient because it avoids redundant calculations by cleverly tracking the rightmost index of each bit. The use of bit manipulation makes it performant for handling individual bits.
+In summary, the algorithm is efficient because it cleverly utilizes bit manipulation to avoid explicitly checking all possible subarrays, resulting in a linear time complexity solution.

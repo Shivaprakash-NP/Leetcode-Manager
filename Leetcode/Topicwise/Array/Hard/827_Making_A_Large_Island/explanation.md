@@ -2,54 +2,53 @@
 
 **1. Problem Understanding:**
 
-The problem asks us to find the size of the largest island (connected group of 1s) in a given binary grid.  We can also create a new island by flipping a single 0 to a 1.  The goal is to find the maximum size of an island, considering both existing islands and the potential for creating a new one by changing a single 0.
+The problem asks us to find the maximum area of an island that can be formed by flipping at most one `0` (representing water) to `1` (representing land) in a given grid.  An island is a group of connected `1`s (horizontally or vertically).
 
 **2. Approach / Intuition:**
 
-This solution uses Union-Find to efficiently identify connected components (islands) in the grid.  The core idea is:
+The solution uses Disjoint Set Union (DSU) to efficiently identify and merge connected landmasses. The strategy is as follows:
 
-1. **Island Identification:** First, we iterate through the grid and use Union-Find to merge adjacent 1s into groups, tracking the size of each group.  This efficiently finds all the existing islands.
+1. **Initial DSU:**  First, we perform a Depth-First Search (DFS)-like traversal to identify all connected components of land (`1`s) using the DSU. Each component is assigned a unique root (parent) in the `par` array, and its size is stored in the `size` array.
 
-2. **Potential Island Expansion:**  Next, we iterate through the grid again, focusing on cells containing 0s. For each 0, we check its adjacent cells. If adjacent cells belong to different islands, we effectively calculate the size of a potential new island formed by changing that 0 to a 1. This involves summing the sizes of the adjacent islands and adding 1 (for the 0 itself).
+2. **Iterate through Zeros:** We then iterate through all the `0` cells (water). For each `0` cell, we check its adjacent cells. If an adjacent cell is land, we find its root using `find()` to determine the connected component it belongs to. We add the sizes of these unique connected components and add `1` (for the flipped `0`).  This gives the size of the island that would be formed if we flipped that `0`.
 
-3. **Maximum Island Size:** We keep track of the maximum island size encountered, considering both existing islands and the potentially expanded islands.
+3. **Find Maximum:** We track the maximum island size encountered during both the initial DSU and the zero-flipping iteration.  This maximum size is the answer.
 
-Union-Find was chosen because it efficiently handles merging connected components and tracking their sizes, significantly improving performance compared to brute-force approaches.
+This approach is chosen because DSU is highly efficient at merging and tracking connected components, significantly reducing the time complexity compared to repeated DFS for each possible `0` flip.
+
 
 **3. Data Structures and Algorithms:**
 
 * **Data Structures:**
-    * `par`: A parent array for Union-Find, representing the parent of each cell (node).
-    * `size`: An array storing the size of each connected component in the Union-Find structure.
-    * `vis`: A boolean array to mark visited cells during the initial island identification step.
-    * `grid`: The input 2D array representing the grid.
-    * `HashSet`: Used to avoid duplicate counting of islands when expanding from a 0.
+    * `par`: An integer array representing the parent of each cell in the DSU. `par[i]` is the parent of cell `i`.
+    * `size`: An integer array storing the size of each connected component. `size[i]` is the size of the component rooted at `i`.
+    * `vis`: A boolean 2D array to track visited cells during the initial DSU traversal.
+    * `dir`: A 2D integer array to represent the four directions (up, down, left, right).
+    * `HashSet<Integer>`: Used to store the unique connected components adjacent to a `0` cell.
 * **Algorithms:**
-    * **Union-Find:** Used to efficiently group connected 1s and track island sizes.
-    * **Depth-First Search (DFS) (implied):** The logic implicitly uses DFS-like exploration to find connected components in the Union-Find portion.
-    * **Greedy Approach:** The solution iterates through all 0s and finds the largest possible island by considering the union of adjacent islands.
+    * **Disjoint Set Union (DSU):** Used to efficiently merge connected components and track their sizes.
+    * **Depth-First Search (DFS):** Implicitly used in the initial DSU traversal, although not implemented explicitly using a recursive stack.
+    * **Union-Find:** This is the algorithm at the heart of DSU. The `find()` and `union()` functions are its core operations.
+
 
 **4. Code Walkthrough:**
 
-* **Initialization:** The code initializes the `par` and `size` arrays for Union-Find, setting each cell's parent to itself and its size to 1.  It also initializes a `vis` array to track visited cells.
+* **Initialization:**  The code initializes `par` and `size` arrays for the DSU, and a `vis` array to track visited cells.  Each cell initially forms its own component of size 1.
 
-* **Island Identification:** The nested loops iterate through the grid. If a cell contains 1 and hasn't been visited, it performs a depth-first search (implicitly through the `union` function calls) to find all connected 1s and merges them into a single connected component using the `union` function. `vis` prevents revisiting already processed cells.
+* **DSU Traversal:** The nested loops iterate through the grid. If a land cell (`grid[i][j] == 1`) is found and not visited, it initiates a DSU process. It checks adjacent land cells and uses `union()` to merge them into the same component.
 
-* **Maximum Existing Island Size:** After identifying all islands, the code finds the largest existing island size using a simple loop.
+* **Finding Maximum Island Size:** After the initial DSU, the code iterates through the `size` array to find the largest component found so far.
 
-* **Potential Island Expansion:** The code iterates through the grid again, this time focusing on 0s. For each 0, it finds its adjacent 1s, determines the unique connected components (islands) they belong to using `find`, and sums their sizes to compute the potential size of a new island if the 0 were changed to 1.  The `HashSet` ensures each island's size is counted only once.
+* **Zero Cell Iteration:** The code iterates through all `0` cells. For each `0`, it checks adjacent land cells. The `find()` operation determines the connected component each land cell belongs to.  `HashSet` ensures we only count the size of each component once. The sum of component sizes plus `1` (for the flipped `0`) gives the potential maximum island size if this `0` is flipped.
 
-* **Final Result:** The code updates `ans` to track the maximum island size, considering both existing and potentially expanded islands.
+* **`find(int a)`:** This function performs path compression in the DSU to efficiently find the root of a component.
 
-* **`find` function:** This is the standard find operation for Union-Find, performing path compression for efficiency.
-
-* **`union` function:** This is the standard union operation for Union-Find, merging two components and updating their sizes.
+* **`union(int a, int b)`:** This function merges two components in the DSU by setting the parent of one root to the other, updating the size accordingly (union by size for optimization).
 
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(N*M), where N and M are the dimensions of the grid.  The nested loops iterate through the grid twice. The `find` and `union` operations in Union-Find are amortized O(1) due to path compression.  The HashSet operations are O(1) on average.
+* **Time Complexity:** O(N*M * α(N*M)), where N and M are the dimensions of the grid, and α is the inverse Ackermann function. The dominant operation is DSU operations which have amortized time complexity of α(N*M), which is almost constant for practical grid sizes. This makes the overall time complexity near-linear.
 
-* **Space Complexity:** O(N*M) to store the `par`, `size`, and `vis` arrays. The HashSet's space complexity is at most O(N*M) in the worst case (many small islands).
 
-The space complexity is dominated by the arrays that are the same size as the input grid.  The algorithm's efficiency stems from the use of Union-Find, which avoids redundant computations.
+* **Space Complexity:** O(N*M), primarily due to the `par`, `size`, and `vis` arrays.  The `HashSet`'s space is also bounded by O(N*M) in the worst case.

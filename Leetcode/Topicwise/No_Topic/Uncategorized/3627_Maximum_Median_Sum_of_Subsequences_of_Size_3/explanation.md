@@ -1,37 +1,48 @@
-## Maximum Median Sum of Subsequences of Size 3 - LeetCode Solution Explanation
+# Maximum Median Sum of Subsequences of Size 3
 
-**1. Problem Understanding:**
+## 1. Problem Understanding
 
-The problem asks us to find the maximum possible median sum of subsequences of size 3 from a given array `nums`.  In simpler terms, we need to select three numbers from the array such that their median (the middle number when sorted) is maximized.  We then sum these three numbers to get the maximum median sum.  The algorithm is optimized to only calculate this median sum; it doesn't actually find all possible subsequences of size 3.
+The problem asks us to find the maximum possible median sum from all subsequences of size 3 within a given array `nums`.  The median of a subsequence of size 3 is simply the middle element when the subsequence is sorted.  The problem, therefore, boils down to selecting the largest possible sum of the `nums.length/3` largest elements after removing the largest element from consideration.
 
-**2. Approach / Intuition:**
+## 2. Approach / Intuition
 
-The solution cleverly leverages the fact that to maximize the median of a subsequence of size 3, we should select the largest possible three numbers. However, we only need the two largest numbers *after* removing the largest number.  This is because the median of three numbers will always be the second largest if the three are sorted.
+The most efficient approach leverages the properties of a sorted array (or a data structure that behaves like one).  Since we only need the top `nums.length / 3` elements (after discarding the largest elements which would be added to the median if it were included), we can use a priority queue (max-heap in this case).
 
-The algorithm uses a max-heap (PriorityQueue in Java) to efficiently find the largest numbers. We repeatedly remove the largest element, then add the next largest element to the sum. This directly calculates the sum of the two largest numbers after removing the largest, effectively computing the sum that maximizes the median.
+This approach is chosen because:
 
+* **Efficiency:**  A max-heap provides O(log n) insertion and removal of the largest element, making it far more efficient than sorting the entire array (O(n log n)) repeatedly.
+* **Simplicity:** The code directly reflects the logic: add all elements to the heap, iteratively remove the largest element (which is not considered in the median), and then add the next largest.  This process is repeated `nums.length / 3` times.
 
-**3. Data Structures and Algorithms:**
+## 3. Data Structures and Algorithms
 
-* **PriorityQueue (Max-Heap):**  A priority queue is used as a max-heap to efficiently store and retrieve the largest elements from the input array.  The `PriorityQueue<Integer>(a,b)->Integer.compare(b,a))` constructor creates a max-heap, ordering elements in descending order.
-* **Iteration:** A `while` loop iterates to remove the largest element (`q.poll()`) and then add the second largest (`ans += q.poll()`),  repeating until the required number of medians (nums.length/3) is processed.
-
-
-**4. Code Walkthrough:**
-
-* `PriorityQueue<Integer> q = new PriorityQueue<>((a, b) -> Integer.compare(b, a));`: This line creates a max-heap priority queue to store the input numbers. The comparator ensures that larger numbers have higher priority.
-* `for(int v : nums) q.offer(v);`: This loop adds all the numbers from the input array `nums` into the priority queue.
-* `int n = nums.length/3;`: This line calculates the number of times we need to find the sum of the two largest numbers (after removing the largest); essentially this determines the number of subsequences of size 3 considered. We only need to consider `nums.length/3` medians because we are interested in the maximum median sum.
-* `long ans = 0;`: Initializes a variable `ans` to store the sum of the second largest numbers (after repeatedly removing the largest).
-* `while(n-->0) { q.poll(); ans+=q.poll(); }`: This loop is the core of the algorithm. In each iteration:
-    * `q.poll();`: The largest element is removed from the queue.
-    * `ans+=q.poll();`: The next largest element (the second largest initially) is added to `ans`. This effectively accumulates the sum of the second largest element across the iterations.
-* `return ans;`: The function returns the final sum `ans`.
-
-**5. Time and Space Complexity:**
-
-* **Time Complexity:** O(N log N), where N is the length of the input array `nums`. This is dominated by the time taken to build the priority queue (O(N log N)) and the `while` loop which iterates N/3 times, each iteration taking O(log N) time for `poll()` operation.
-* **Space Complexity:** O(N), as the priority queue can store up to N elements in the worst case (all unique numbers).
+* **Priority Queue (Max-Heap):**  A `PriorityQueue` in Java is used to efficiently maintain the largest elements. We use a custom comparator to make it a max-heap (largest element at the top).
+* **Iteration:** A `while` loop iterates to extract the necessary elements for the calculation.
 
 
-In summary, this solution provides an efficient way to find the maximum median sum of subsequences of size 3 by cleverly using a max-heap to efficiently find and process the required largest elements. The time complexity is optimal for this approach, as sorting would also take O(N log N) time.
+## 4. Code Walkthrough
+
+```java
+class Solution {
+    public long maximumMedianSum(int[] nums) {
+        PriorityQueue<Integer> q = new PriorityQueue<>((a, b) -> Integer.compare(b, a)); // Creates a max-heap priority queue
+        for(int v : nums) q.offer(v); // Adds all elements from nums to the priority queue
+        int n = nums.length/3; // Determines how many elements we need for our median sum
+        long ans = 0; // Variable to accumulate the sum of the medians
+        while(n-->0) { //Iterates nums.length/3 times
+            q.poll(); //Removes the largest element (not part of the median)
+            ans+=q.poll(); //Adds the next largest element (which will be part of the median)
+        }
+        return ans; //Returns the total median sum
+    }
+}
+```
+
+The code is concise and directly implements the algorithm.  The priority queue efficiently manages the largest elements, enabling the straightforward computation of the maximum median sum.
+
+## 5. Time and Space Complexity
+
+* **Time Complexity:** O(N log N), where N is the length of the `nums` array. This is dominated by the cost of adding N elements to the priority queue (O(N log N)). The `while` loop runs for N/3 iterations, with each iteration taking O(log N) time for `poll()` operation.
+
+* **Space Complexity:** O(N) to store the priority queue.  The space used is proportional to the size of the input array.  The other variables use constant space.
+
+**In summary:** The solution uses a priority queue to efficiently solve the "Maximum Median Sum of Subsequences of Size 3" problem, achieving a time complexity of O(N log N) and a space complexity of O(N). The code is clear and directly reflects the algorithmic approach.

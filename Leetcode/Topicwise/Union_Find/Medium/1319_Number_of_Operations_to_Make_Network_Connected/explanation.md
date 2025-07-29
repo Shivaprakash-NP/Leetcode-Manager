@@ -2,45 +2,48 @@
 
 **1. Problem Understanding:**
 
-The problem asks us to determine the minimum number of cables needed to connect all `n` computers in a network.  We are given a list of existing connections between computers.  A connection is represented as an edge between two computers. If it's impossible to connect all computers, we return -1.
+The problem asks us to determine the minimum number of cables needed to connect all `n` computers in a network, given a set of existing connections.  Each computer is represented by a node, and connections are represented as edges between nodes.  If it's impossible to connect all computers, we return -1.
+
 
 **2. Approach / Intuition:**
 
-This problem can be efficiently solved using the Union-Find (Disjoint Set) algorithm.  The core idea is to represent each computer as a node in a graph.  Connections between computers are edges in this graph.  The Union-Find algorithm helps us efficiently determine the number of connected components in the graph.  Each connected component represents a group of computers that are already connected.  The minimum number of cables needed is equal to the number of connected components minus 1 (because each cable connects two components, effectively reducing the number of components by one).
+This problem can be efficiently solved using the Union-Find algorithm (also known as Disjoint-Set Union).  The core idea is to represent each computer as a node in a disjoint-set data structure.  Initially, each computer is in its own set.  We then iterate through the connections:  If two computers are already in the same set (connected), we ignore the connection. Otherwise, we use the `union` operation to merge their sets, effectively connecting them. Finally, the number of remaining sets (disjoint components) represents the minimum number of additional connections needed to fully connect the network. We subtract 1 because we are counting the number of components needed to connect to the already connected components and not the components themselves.
 
-We choose this approach because Union-Find is highly optimized for this type of connectivity problem, offering near-constant time complexity for most operations.
+This approach is chosen because Union-Find provides an efficient way to track connected components and perform union operations with path compression and union by rank (size in this case) for optimal performance.
+
 
 **3. Data Structures and Algorithms:**
 
 * **Data Structures:**
-    * `parent[]`: An integer array used to store the parent of each node in the Union-Find data structure.  `parent[i]` represents the parent node of node `i`.  If `parent[i] == i`, then node `i` is the root of its component.
-    * `size[]`: An integer array used to store the size of each component. This is used for union-by-rank optimization.
+    * `parent`: An integer array representing the parent node of each node in the Union-Find data structure.  `parent[i]` is the parent of node `i`. If `parent[i] == i`, then `i` is the root of its set.
+    * `size`: An integer array representing the size of each set. `size[i]` is the number of nodes in the set rooted at `i`.
 * **Algorithms:**
-    * **Union-Find (Disjoint Set):**  This algorithm is used to efficiently manage the connected components.  It consists of two main operations: `find()` (to find the root of a component) and `union()` (to merge two components).
-    * **Path Compression (within `find()`):**  This optimization technique flattens the tree structure in the Union-Find data structure, improving the efficiency of future `find()` operations.
-    * **Union by Rank (within `union()`):** This optimization attaches the smaller tree to the root of the larger tree, improving the overall height of the tree structure and maintaining efficiency.
+    * **Union-Find:** The core algorithm used to efficiently manage disjoint sets and determine connectivity.  This involves the `find` and `union` operations.
+    * **Path Compression (in `find`):** Optimizes `find` by flattening the tree structure during the search.
+    * **Union by Rank (Union by Size in this case):** Optimizes `union` by always attaching the smaller set to the larger one, keeping the tree structure relatively flat.
 
 
 **4. Code Walkthrough:**
 
 * **`makeConnected(int n, int[][] connections)`:** This is the main function.
-    * `if(n-1 > connections.length) return -1;`: This checks if there are enough connections to potentially connect all computers. If not, it's impossible to connect them all, so -1 is returned.
-    * `parent = new int[n]; size = new int[n];`: Initializes the `parent` and `size` arrays for the Union-Find data structure.
-    * `for(int i = 0; i<n; i++) { parent[i] = i; size[i] = 1; }`: Initializes each node to be its own parent (representing separate components initially) and sets each component's size to 1.
-    * `int ans = n;`: Initializes the number of connected components to `n` (each node is initially its own component).
-    * `for(int[] c : connections) { ... }`: Iterates through the connections.
-    * `if(union(u, v)) ans--;`:  Attempts to unite the two nodes (`u` and `v`) using the `union()` function. If the union is successful (meaning they were in different components), the number of components is decremented.
-    * `return ans-1;`: Returns the number of connected components minus 1.
+    * `if(n-1 > connections.length) return -1;`: This crucial line checks if there are enough connections to potentially connect all nodes. If there are fewer connections than `n-1` (the minimum number of edges needed for a connected graph), it's impossible to connect the network, so we return -1.
+    * `parent = new int[n]; size = new int[n];`: Initializes the `parent` and `size` arrays.
+    * `for(int i = 0; i<n; i++) { parent[i] = i; size[i] = 1; }`: Initializes each node as its own parent (representing a separate set) with size 1.
+    * `int ans = n;`: Initializes the count of disjoint sets to `n` (initially, each node is in its own set).
+    * `for(int[] c : connections) { ... }`: Iterates through each connection.
+        * `u = c[0]; v = c[1];`: Extracts the nodes connected by the current edge.
+        * `if(union(u, v)) ans--;`: Calls the `union` function. If the `union` operation successfully merges two sets, it reduces the number of disjoint sets (`ans`).
+    * `return ans-1;`: Returns the number of disjoint sets minus 1 (components to connect). This is the minimum number of additional edges needed.
 
-* **`find(int u)`:** This function finds the root of the component containing node `u` using path compression.
+* **`find(int u)`:** This function finds the root of the set containing node `u` using path compression.
 
-* **`union(int a, int b)`:** This function merges the components containing nodes `a` and `b` using union-by-rank.  It returns `true` if the union was successful and `false` otherwise.
+* **`union(int a, int b)`:** This function merges the sets containing nodes `a` and `b` using union by size.  It returns `true` if the sets were successfully merged, `false` otherwise.
 
 
 **5. Time and Space Complexity:**
 
-* **Time Complexity:** O(Eα(E)), where E is the number of edges (connections) and α is the inverse Ackermann function.  In practice, α(E) is a very slowly growing function, essentially constant for all practical input sizes, so the time complexity can be considered O(E).  The `find()` and `union()` operations are amortized O(α(E)) each.
+* **Time Complexity:** O(Mα(N)), where N is the number of nodes (computers), M is the number of edges (connections), and α(N) is the inverse Ackermann function, which is practically a constant for all practical input sizes.  The dominant operation is the Union-Find operations, which are amortized O(α(N)) per operation due to path compression and union by rank (size).
 
-* **Space Complexity:** O(N), where N is the number of nodes (computers).  This is due to the space used by the `parent` and `size` arrays.
+* **Space Complexity:** O(N) to store the `parent` and `size` arrays.  This is linear with respect to the number of nodes.
 
-The use of path compression and union by rank significantly optimizes the Union-Find algorithm, resulting in near-linear time complexity for most practical inputs.  The space complexity is linear because we need to store the parent and size of each node.
+The Union-Find algorithm's efficiency, particularly with path compression and union by size, makes this solution highly scalable for large networks.
