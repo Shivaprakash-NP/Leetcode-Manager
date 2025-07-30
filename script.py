@@ -186,7 +186,7 @@ def main():
     }
 
     # --- Fetch and Process Submissions ---
-    offset = 150
+    offset = 330
     limit = 20 # Fetch submissions in pages of 20. This is the API page size.
     print(f"\n🔍 Fetching latest accepted submissions from LeetCode...")
     

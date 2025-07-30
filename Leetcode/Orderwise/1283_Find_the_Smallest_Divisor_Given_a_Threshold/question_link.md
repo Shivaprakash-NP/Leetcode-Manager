@@ -1,0 +1,1 @@
+[View Problem on LeetCode](https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/)
