@@ -85,7 +85,7 @@ def get_gemini_explanation(code_content, qn_name, lang):
     """
     try:
         # Using a recent and capable model.
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         prompt = f"""
         You are an expert LeetCode problem solver and explainer.
         Given the following {lang} code for a LeetCode problem titled "{qn_name}",

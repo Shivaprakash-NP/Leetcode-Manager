@@ -1,0 +1,1 @@
+[View Problem on LeetCode](https://leetcode.com/problems/find-the-prefix-common-array-of-two-arrays/)
