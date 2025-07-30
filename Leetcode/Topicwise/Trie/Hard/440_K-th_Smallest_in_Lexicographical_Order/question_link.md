@@ -1,0 +1,1 @@
+[View Problem on LeetCode](https://leetcode.com/problems/k-th-smallest-in-lexicographical-order/)
