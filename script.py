@@ -38,7 +38,7 @@ def setup_environment():
         exit(1)
 
     # Load and configure Gemini API
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY1")
     if not api_key:
         print("🔴 ERROR: GEMINI_API_KEY not found in .env file.")
         exit(1)
@@ -186,7 +186,7 @@ def main():
     }
 
     # --- Fetch and Process Submissions ---
-    offset = 330
+    offset = 400
     limit = 20 # Fetch submissions in pages of 20. This is the API page size.
     print(f"\n🔍 Fetching latest accepted submissions from LeetCode...")
     
