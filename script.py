@@ -38,7 +38,7 @@ def setup_environment():
         exit(1)
 
     # Load and configure Gemini API
-    api_key = os.getenv("GEMINI_API_KEY3")
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         print("🔴 ERROR: GEMINI_API_KEY not found in .env file.")
         exit(1)
