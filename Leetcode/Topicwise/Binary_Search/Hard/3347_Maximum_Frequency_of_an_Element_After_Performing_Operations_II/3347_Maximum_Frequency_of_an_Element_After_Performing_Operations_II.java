@@ -25,20 +25,18 @@ class Solution {
         int ans = 0;
 
         Map<Integer, Integer> map = new HashMap<>();
-
-        for(int v : nums) map.put(v, map.getOrDefault(v, 0) + 1);
         Set<Integer> set = new HashSet<>();
 
-        Arrays.sort(nums);
-        int l = nums[0];
-        int r = nums[n-1];
+        for(int v : nums) map.put(v, map.getOrDefault(v, 0) + 1);
 
-        for(int v : map.keySet()) {
+        for(int v : nums) {
             set.add(v);
             set.add(v-k);
             set.add(v+k);
         }
-        
+
+        Arrays.sort(nums);
+
         for(int i : set) {
             int v1 = i-k;
             int v2 = i+k;
