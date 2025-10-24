@@ -1,4 +1,3 @@
-```markdown
 ## LeetCode Problem: Check If Digits Are Equal in String After Operations I - Explanation
 
 ### 1. Problem Understanding:
