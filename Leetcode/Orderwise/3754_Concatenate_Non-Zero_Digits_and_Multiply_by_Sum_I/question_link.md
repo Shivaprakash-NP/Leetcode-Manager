@@ -1,0 +1,1 @@
+[View Problem on LeetCode](https://leetcode.com/problems/concatenate-non-zero-digits-and-multiply-by-sum-i/)
