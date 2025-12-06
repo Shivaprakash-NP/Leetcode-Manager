@@ -1,0 +1,3 @@
+### Problem Understanding
+
+The problem "Count Partitions With Max-Min Difference at Most K" asks us to find the number of ways to partition a given array `nums` into one or more non-empty contiguous subarrays. The crucial condition is that for *every* subarray in the partition, the difference between its maximum and minimum element must be at most `k`. Since the number of partitions can be very large
