@@ -1,0 +1,3 @@
+### Problem Understanding
+
+The problem, titled "Minimum Moves to Balance Circular Array", asks us to make all elements in a given `balance` array non-negative (`balance[i] >= 0`). The array is circular, meaning the last element is adjacent to the first. We can move units from a position `i` with a positive balance (surplus) to a position `j` with a negative balance (deficit). Each unit moved from `i` to `j` incurs a cost equal to the shortest distance between `i` and `j` in the circular array. The shortest distance is `min(abs(i-j), n-abs(i-j))`, where `n` is the array length. Our goal is to find the minimum total cost to achieve a state where
