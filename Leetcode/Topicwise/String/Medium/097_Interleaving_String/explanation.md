@@ -1,0 +1,3 @@
+### Problem Understanding
+
+The problem "Interleaving String" asks us to determine if a third string, `s3`, can be formed by interleaving two other strings, `s1` and `s2`. Interleaving means that `s3` is constructed by taking characters from `s1` and `s2` in their original relative order, but the characters can be chosen alternately from either string. For example, if `s1 = "aab"`, `s2 = "axy"`, and `s3 = "aaaxby"`, then `s3` is an interleave of `s1` and `s2`. The first 'a' from `s1`, second 'a' from `s1`, 'a' from `s2`, '
